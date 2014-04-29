@@ -1,0 +1,55 @@
+baglan.Open();
+             OleDbTransaction transKomut = baglan.BeginTransaction();
+          try
+          {
+
+             OleDbCommand kayitogr = new OleDbCommand("INSERT INTO  ogrenciler (ogr_adi,ogr_soyadi,ogr_ceptelefon,ogr_kayittarih,ogr_adres,ogr_email) VALUES (@ogr_adi,@ogr_soyadi,@ogr_ceptelefon,@ogr_kayittarih,@ogr_adres,@ogr_email)", baglan);
+              kayitogr.Parameters.Add("@ogr_adi", txtIsım.Text);
+              kayitogr.Parameters.Add("@ogr_soyadi", txtSoyadi.Text);
+              kayitogr.Parameters.Add("@ogr_ceptelefon", txtCepTelefon.Text);
+              kayitogr.Parameters.Add("@ogr_kayittarih", dataKayitTarih.Text);
+              kayitogr.Parameters.Add("@ogr_adres", txtAdres.Text);
+              kayitogr.Parameters.Add("@ogr_email", txtEmail.Text);
+              kayitogr.Transaction = transKomut;
+              kayitogr.ExecuteNonQuery();
+
+              transKomut.Commit();
+              
+              OleDbCommand id = new OleDbCommand("SELECT Max(ogr_id)From ogrenciler", baglan); // Son kayıt olan id değerini alıyor.
+              string idi = Convert.ToString(id.ExecuteScalar());
+
+
+              OleDbCommand odabilgileri = new OleDbCommand("INSERT INTO okulbilgileri(okul_ogr_id,okul_adi,okul_bolum_adi,okul_sinif,okul_no) VALUES (" + idi + ",@okul_adi,@okul_bolum_adi,@okul_sinif,@okul_no)", baglan);
+              odabilgileri.Parameters.Add("@okul_adi", cbFakulte.Text.Trim());
+              odabilgileri.Parameters.Add("@okul_bolum_adi", cbBolum.Text.Trim());
+              odabilgileri.Parameters.Add("@okul_sinif", txtSinif.Text.Trim());
+              odabilgileri.Parameters.Add("@okul_no", txtOkulNo.Text.Trim());
+              odabilgileri.Transaction = transKomut;
+              odabilgileri.ExecuteNonQuery();
+
+              OleDbCommand kayitnfsbilgi = new OleDbCommand("INSERT INTO  nusufcuzdan_bilgileri (ncb_ogr_id,ncb_serino,ncb_anneadi,ncb_babaadi,ncb_dogumyeri,ncb_dogumtarihi,ncb_il,ncb_ilce,ncb_koymahalle) VALUES (" + idi + ",@ncb_serino,@ncb_anneadi,@ncb_babaadi,@ncb_dogumyeri,@ncb_dogumtarihi,@ncb_il,@ncb_ilce,@ncb_koymahalle)", baglan);
+              kayitnfsbilgi.Parameters.Add("@ncb_serino", txtSeriNo.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_anneadi", txtAnneAdi.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_babaadi", txtBabaAdi.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_dogumyeri", txtDogumYeri.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_dogumtarihi", txtDogumTarih.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_il", cbIller.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_ilce", cbIlceler.Text);
+              kayitnfsbilgi.Parameters.Add("@ncb_koymahalle", txtKoyMahalle.Text);
+              kayitnfsbilgi.Transaction = transKomut;
+              kayitnfsbilgi.ExecuteNonQuery();
+
+
+          }
+          catch (Exception ex)
+          {
+              transKomut.Rollback();
+              MessageBox.Show(ex.Message);
+              
+          }
+
+          finally
+          {
+
+              baglan.Close();
+          }
